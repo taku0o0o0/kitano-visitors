@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>北野天満宮 来訪カウンター</title>
+<meta name="theme-color" content="#7a1f2b">
+<style>
+  :root {
+    --ume: #b8325a; --ume-soft: #f8e6ec; --shu: #7a1f2b; --ink: #2b2622; --sub: #7a716a;
+    --paper: #faf7f2; --card: #fff; --line: #e7e0d6; --gold: #b08a3e; --gold-soft: #f5ecd6;
+    --ai: #2d4f7c; --ai-soft: #e4ecf6;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; }
+  body {
+    font-family: "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
+    background: var(--paper); color: var(--ink); -webkit-font-smoothing: antialiased;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .mincho { font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif; }
+  header {
+    background: var(--shu); color: #fff; padding: calc(12px + env(safe-area-inset-top)) 18px 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  header svg { width: 30px; height: 30px; flex: none; }
+  header h1 { font-size: 18px; margin: 0; letter-spacing: .12em; font-weight: 600; }
+  header .date { margin-left: auto; font-size: 13px; opacity: .85; }
+  main { max-width: 920px; margin: 0 auto; padding: 16px 14px 40px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+  .card h2 { font-size: 15px; margin: 0 0 12px; letter-spacing: .08em; color: var(--shu); display: flex; align-items: center; gap: 8px; }
+  .card h2 .r { margin-left: auto; }
+
+  /* live counter */
+  .total { display: flex; align-items: baseline; justify-content: center; gap: 6px; margin: 2px 0 14px; }
+  .total .num { font-size: 56px; font-weight: 700; color: var(--shu); line-height: 1; font-variant-numeric: tabular-nums; }
+  .total .lbl { font-size: 14px; color: var(--sub); }
+  .total .split { font-size: 13px; color: var(--sub); margin-left: 10px; }
+  .grid { display: grid; grid-template-columns: 64px repeat(3, 1fr); gap: 8px; align-items: stretch; }
+  .grid .rowlbl { display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; border-radius: 10px; writing-mode: horizontal-tb; }
+  .grid .rowlbl.jp { background: var(--ume-soft); color: var(--shu); }
+  .grid .rowlbl.fg { background: var(--ai-soft); color: var(--ai); }
+  .cbtn {
+    border: none; border-radius: 14px; padding: 14px 6px 12px; cursor: pointer; font: inherit;
+    display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 96px; justify-content: center;
+    transition: transform .06s ease, filter .15s;
+    user-select: none;
+  }
+  .cbtn:active { transform: scale(.96); }
+  .cbtn .t { font-size: 14px; font-weight: 600; }
+  .cbtn .c { font-size: 34px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .cbtn.jp { background: var(--ume); color: #fff; }
+  .cbtn.jp.b2 { background: #9b2748; }
+  .cbtn.jp.b3 { background: var(--shu); }
+  .cbtn.fg { background: #3c6699; color: #fff; }
+  .cbtn.fg.b2 { background: var(--ai); }
+  .cbtn.fg.b3 { background: #1e3756; }
+  .cbtn.flash { filter: brightness(1.35); }
+  .head3 { display: contents; }
+  .colhead { text-align: center; font-size: 12px; color: var(--sub); }
+  .qty { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .qty .ql { font-size: 13px; color: var(--sub); margin-right: 2px; }
+  .qty button { border: 1px solid var(--line); background: #fff; border-radius: 10px; min-width: 44px; height: 44px; font-size: 18px; font-weight: 600; color: var(--ink); }
+  .qty button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .qty .qv { font-size: 26px; font-weight: 700; min-width: 48px; text-align: center; font-variant-numeric: tabular-nums; }
+  .qty .sep { width: 1px; height: 28px; background: var(--line); margin: 0 4px; }
+  .undo-row { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
+  .undo-row .last { font-size: 13px; color: var(--sub); flex: 1; }
+
+  button { font: inherit; cursor: pointer; }
+  .btn { border: none; border-radius: 10px; padding: 12px 18px; font-size: 16px; }
+  .btn-primary { background: var(--ume); color: #fff; font-weight: 600; letter-spacing: .1em; }
+  .btn-ghost { background: transparent; border: 1px solid var(--line); color: var(--ink); font-size: 14px; padding: 8px 12px; border-radius: 10px; }
+  .btn-ghost:hover { background: var(--paper); }
+  .btn-small { font-size: 13px; padding: 5px 10px; }
+  .btn-danger { color: var(--ume); }
+
+  /* summary table */
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 99px; overflow: hidden; }
+  .seg button { border: none; background: none; padding: 5px 12px; font-size: 13px; color: var(--sub); }
+  .seg button.on { background: var(--shu); color: #fff; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { padding: 9px 8px; border-bottom: 1px solid var(--line); text-align: left; }
+  th { font-size: 12px; color: var(--sub); font-weight: 500; }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+  tr.sum td { font-weight: 700; border-top: 2px solid var(--line); }
+
+  /* form */
+  form.entry { display: grid; grid-template-columns: 1fr 120px auto auto; gap: 10px; align-items: end; }
+  @media (max-width: 600px) { form.entry { grid-template-columns: 1fr 1fr; } form.entry .btn { grid-column: 1 / -1; } }
+  label.f { display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: var(--sub); position: relative; }
+  label.chk { display: flex; align-items: center; gap: 6px; font-size: 15px; padding: 10px 4px; white-space: nowrap; }
+  label.chk input { width: 20px; height: 20px; accent-color: var(--ai); }
+  input, select { font: inherit; font-size: 17px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink); width: 100%; }
+  input:focus, select:focus { outline: 2px solid var(--ume); outline-offset: -1px; border-color: transparent; }
+  .suggest { position: absolute; top: 100%; left: 0; right: 0; z-index: 10; margin-top: 4px; background: #fff; border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.08); overflow: hidden; display: none; }
+  .suggest.show { display: block; }
+  .suggest div { padding: 10px 12px; cursor: pointer; display: flex; justify-content: space-between; font-size: 15px; color: var(--ink); }
+  .suggest div:hover, .suggest div.active { background: var(--ume-soft); }
+  .suggest small { color: var(--sub); }
+  .note { font-size: 12px; color: var(--sub); margin-top: 8px; }
+  .result { display: none; margin-top: 14px; border-radius: 12px; padding: 14px; background: linear-gradient(135deg, #fff 0%, var(--ume-soft) 100%); border: 1px solid #ecc6d3; text-align: center; }
+  .result.show { display: block; animation: pop .35s ease; }
+  @keyframes pop { from { transform: scale(.96); opacity: 0; } to { transform: none; opacity: 1; } }
+  .result .who { font-size: 18px; }
+  .result .nth { font-size: 38px; font-weight: 700; color: var(--shu); margin: 4px 0; }
+  .result .nth.first { color: var(--gold); }
+  .result .meta { font-size: 13px; color: var(--sub); }
+
+  .badge { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 99px; background: var(--ume-soft); color: var(--shu); white-space: nowrap; }
+  .badge.b1 { background: var(--gold-soft); color: #8a6620; }
+  .badge.fg { background: var(--ai-soft); color: var(--ai); }
+
+  /* tabs */
+  .tabs { display: flex; gap: 4px; margin-bottom: 12px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+  .tab { background: none; border: none; padding: 10px 12px; font-size: 15px; color: var(--sub); border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+  .tab.on { color: var(--shu); border-bottom-color: var(--shu); font-weight: 600; }
+  .panel { display: none; }
+  .panel.on { display: block; }
+  .toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+  .toolbar input, .toolbar select { font-size: 15px; padding: 8px 10px; width: auto; }
+  .toolbar .grow { flex: 1; min-width: 160px; }
+  .empty { text-align: center; color: var(--sub); padding: 24px; font-size: 14px; }
+  tr.clickable { cursor: pointer; }
+  tr.clickable:hover { background: var(--paper); }
+  .muted { color: var(--sub); }
+
+  .bars { display: flex; align-items: flex-end; gap: 3px; height: 140px; padding-top: 8px; }
+  .bars .b { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; height: 100%; justify-content: flex-end; min-width: 0; }
+  .bars .col { width: 100%; max-width: 28px; display: flex; flex-direction: column-reverse; border-radius: 4px 4px 0 0; overflow: hidden; }
+  .bars .d, .bars .v { font-size: 10px; color: var(--sub); }
+  .bars .v { color: var(--ink); }
+  .legend { display: flex; gap: 14px; font-size: 12px; color: var(--sub); margin-top: 8px; flex-wrap: wrap; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+
+  dialog { border: none; border-radius: 14px; padding: 0; max-width: 480px; width: calc(100% - 32px); }
+  dialog::backdrop { background: rgba(30,20,20,.4); }
+  .dlg { padding: 20px; }
+  .dlg h3 { margin: 0 0 4px; color: var(--shu); }
+  .dlg .row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; flex-wrap: wrap; }
+  .dlg ul { list-style: none; padding: 0; margin: 12px 0 0; max-height: 240px; overflow: auto; }
+  .dlg li { padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 14px; display: flex; justify-content: space-between; }
+  footer { text-align: center; font-size: 12px; color: var(--sub); padding: 10px 16px 30px; }
+</style>
+</head>
+<body>
+<header>
+  <svg viewBox="0 0 40 40" aria-hidden="true">
+    <g fill="#fff"><circle cx="20" cy="9" r="7"/><circle cx="30.5" cy="16.6" r="7"/><circle cx="26.5" cy="29" r="7"/><circle cx="13.5" cy="29" r="7"/><circle cx="9.5" cy="16.6" r="7"/></g>
+    <circle cx="20" cy="20" r="4.2" fill="#7a1f2b"/>
+  </svg>
+  <h1 class="mincho">北野天満宮 来訪カウンター</h1>
+  <span class="date" id="todayLabel"></span>
+</header>
+
+<main>
+  <!-- live counter -->
+  <section class="card">
+    <h2 class="mincho">ライブカウント（本日）</h2>
+    <div class="total">
+      <span class="lbl">本日</span><span class="num" id="tTotal">0</span><span class="lbl">名</span>
+      <span class="split" id="tSplit"></span>
+    </div>
+    <div class="qty" id="qty">
+      <span class="ql">人数</span>
+      <button data-q="1" class="on">1</button><button data-q="2">2</button><button data-q="3">3</button><button data-q="4">4</button><button data-q="5">5</button>
+      <span class="sep"></span>
+      <button id="qMinus">−</button><span class="qv" id="qVal">1</span><button id="qPlus">＋</button>
+      <span class="ql">名をまとめて加算</span>
+    </div>
+    <div class="grid">
+      <div></div>
+      <div class="colhead">1回目</div><div class="colhead">2回目</div><div class="colhead">3回目以上</div>
+      <div class="rowlbl jp">日本人</div>
+      <button class="cbtn jp b1" data-f="0" data-b="1"><span class="t">1回目</span><span class="c">0</span></button>
+      <button class="cbtn jp b2" data-f="0" data-b="2"><span class="t">2回目</span><span class="c">0</span></button>
+      <button class="cbtn jp b3" data-f="0" data-b="3"><span class="t">3回目以上</span><span class="c">0</span></button>
+      <div class="rowlbl fg">外国人</div>
+      <button class="cbtn fg b1" data-f="1" data-b="1"><span class="t">1回目</span><span class="c">0</span></button>
+      <button class="cbtn fg b2" data-f="1" data-b="2"><span class="t">2回目</span><span class="c">0</span></button>
+      <button class="cbtn fg b3" data-f="1" data-b="3"><span class="t">3回目以上</span><span class="c">0</span></button>
+    </div>
+    <div class="undo-row">
+      <span class="last" id="lastLabel">人数を選んでボタンをタップ（タップ後は1名に戻ります）</span>
+      <button class="btn-ghost" id="undoBtn">↶ 1つ取り消す</button>
+    </div>
+  </section>
+
+  <!-- summary -->
+  <section class="card">
+    <h2 class="mincho">集計 <span class="r seg" id="sumSeg"><button data-v="today" class="on">本日</button><button data-v="month">今月</button><button data-v="all">累計</button></span></h2>
+    <table>
+      <thead><tr><th></th><th class="n">1回目</th><th class="n">2回目</th><th class="n">3回目以上</th><th class="n">計</th></tr></thead>
+      <tbody id="sumBody"></tbody>
+    </table>
+  </section>
+
+  <!-- named -->
+  <section class="card">
+    <h2 class="mincho">お客様を名前で記録</h2>
+    <form class="entry" id="entryForm" autocomplete="off">
+      <label class="f">お名前
+        <input id="inName" placeholder="例：山田 花子 / John Smith" required>
+        <div class="suggest" id="suggest"></div>
+      </label>
+      <label class="f">電話 下4桁（任意）
+        <input id="inTel" inputmode="numeric" maxlength="4" placeholder="1234">
+      </label>
+      <label class="chk"><input type="checkbox" id="inForeign">外国人</label>
+      <button class="btn btn-primary" type="submit">記録</button>
+    </form>
+    <div class="note">登録したお客様は何回目かを自動で判定し、上のカウントにも自動で加算されます。名前＋電話下4桁で同一人物を判定します。</div>
+    <div class="result" id="result">
+      <div class="who mincho" id="rWho"></div>
+      <div class="nth mincho" id="rNth"></div>
+      <div class="meta" id="rMeta"></div>
+    </div>
+  </section>
+
+  <!-- tabs -->
+  <section class="card">
+    <div class="tabs">
+      <button class="tab on" data-tab="log">来訪ログ</button>
+      <button class="tab" data-tab="customers">お客様一覧</button>
+      <button class="tab" data-tab="trend">推移</button>
+      <button class="tab" data-tab="data">データ</button>
+    </div>
+
+    <div class="panel on" id="p-log">
+      <div class="toolbar"><input type="date" id="logDate"><span id="logSummary" class="muted" style="font-size:13px"></span></div>
+      <table>
+        <thead><tr><th>時刻</th><th>お客様</th><th>区分</th><th></th></tr></thead>
+        <tbody id="logBody"></tbody>
+      </table>
+    </div>
+
+    <div class="panel" id="p-customers">
+      <div class="toolbar">
+        <input class="grow" id="custSearch" placeholder="名前・電話で検索">
+        <select id="custSort">
+          <option value="count">来訪回数が多い順</option>
+          <option value="last">最終来訪が新しい順</option>
+          <option value="first">初回来訪が新しい順</option>
+          <option value="name">名前順</option>
+        </select>
+      </div>
+      <table>
+        <thead><tr><th>お名前</th><th>電話</th><th class="n">回数</th><th>初回</th><th>最終</th></tr></thead>
+        <tbody id="custBody"></tbody>
+      </table>
+    </div>
+
+    <div class="panel" id="p-trend">
+      <div class="toolbar">
+        <select id="trendRange"><option value="14">直近14日</option><option value="30">直近30日</option></select>
+        <select id="trendBy"><option value="bucket">回数別</option><option value="foreign">日本人／外国人</option></select>
+      </div>
+      <div class="bars" id="bars"></div>
+      <div class="legend" id="legend"></div>
+    </div>
+
+    <div class="panel" id="p-data">
+      <p style="font-size:14px;line-height:1.8;margin-top:0">
+        データはこの端末のブラウザ内にだけ保存され、外部には送信されません。<br>
+        機種変更やブラウザのデータ消去に備えて、ときどきCSVで書き出して保管してください。
+      </p>
+      <div class="toolbar">
+        <button class="btn-ghost" id="exportCsv">CSVで書き出す</button>
+        <label class="btn-ghost" style="cursor:pointer">CSVを読み込む<input type="file" id="importCsv" accept=".csv,text/csv" hidden></label>
+        <button class="btn-ghost btn-danger" id="clearAll">全データを消去</button>
+      </div>
+      <p class="muted" style="font-size:12px">CSV読み込みは既存データに追加されます（同じ記録は重複しません）。</p>
+    </div>
+  </section>
+</main>
+
+<dialog id="custDlg">
+  <div class="dlg">
+    <h3 id="dName" class="mincho"></h3>
+    <div id="dMeta" class="muted" style="font-size:13px"></div>
+    <ul id="dVisits"></ul>
+    <div class="row">
+      <button class="btn-ghost btn-danger" id="dDelete">削除</button>
+      <button class="btn-ghost" id="dEdit">情報を修正</button>
+      <button class="btn-ghost" id="dClose">閉じる</button>
+      <button class="btn btn-primary" id="dVisit">今日の来訪を記録</button>
+    </div>
+  </div>
+</dialog>
+
+<footer>北野天満宮 来訪カウンター ・ データはこの端末にのみ保存</footer>
+
+<script>
+(() => {
+  const KEY = 'kitano-visitors-v2';
+  const $ = id => document.getElementById(id);
+  const BL = { 1: '1回目', 2: '2回目', 3: '3回目以上' };
+
+  // data = { customers: {id:{id,name,tel,foreign}}, visits: [{id, ts, b:1|2|3, f:0|1, cid?, n?}] }
+  let data = load();
+  function load() {
+    try { const d = JSON.parse(localStorage.getItem(KEY)); if (d && d.customers && Array.isArray(d.visits)) return d; } catch (e) {}
+    return { customers: {}, visits: [] };
+  }
+  function save() { localStorage.setItem(KEY, JSON.stringify(data)); }
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+  const norm = s => (s || '').normalize('NFKC').replace(/\s+/g, ' ').trim();
+  const keyOf = (name, tel) => norm(name).replace(/ /g, '').toLowerCase() + '|' + (tel || '');
+  const pad = n => String(n).padStart(2, '0');
+  const dayKey = ts => { const d = new Date(ts); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+  const monthKey = ts => dayKey(ts).slice(0, 7);
+  const fmtDate = ts => { const d = new Date(ts); return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`; };
+  const fmtTime = ts => { const d = new Date(ts); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const WD = ['日', '月', '火', '水', '木', '金', '土'];
+  const todayKey = () => dayKey(Date.now());
+
+  const findCustomer = (name, tel) => { const k = keyOf(name, tel); return Object.values(data.customers).find(c => keyOf(c.name, c.tel) === k); };
+  const visitsOf = cid => data.visits.filter(v => v.cid === cid).sort((a, b) => a.ts - b.ts);
+  // recompute n / bucket for a named customer's visits (keeps them consistent after edits)
+  function renumber(cid) {
+    const c = data.customers[cid];
+    visitsOf(cid).forEach((v, i) => { v.n = i + 1; v.b = Math.min(3, i + 1); if (c) v.f = c.foreign ? 1 : 0; });
+  }
+
+  // ---------- live counter ----------
+  const history = []; // visit ids added this session, for undo
+  const Q = v => v.q || 1;
+  let qty = 1;
+  function setQty(n) {
+    qty = Math.max(1, Math.min(99, n));
+    $('qVal').textContent = qty;
+    document.querySelectorAll('#qty [data-q]').forEach(b => b.classList.toggle('on', +b.dataset.q === qty));
+  }
+  $('qty').addEventListener('click', e => { const b = e.target.closest('[data-q]'); if (b) setQty(+b.dataset.q); });
+  $('qMinus').addEventListener('click', () => setQty(qty - 1));
+  $('qPlus').addEventListener('click', () => setQty(qty + 1));
+  function addTap(f, b) {
+    const v = { id: uid(), ts: Date.now(), b, f };
+    if (qty > 1) v.q = qty;
+    data.visits.push(v); history.push(v.id); save();
+    $('lastLabel').textContent = `${fmtTime(v.ts)} ${f ? '外国人' : '日本人'}・${BL[b]} を +${qty} しました`;
+    setQty(1);
+    render();
+  }
+  document.querySelectorAll('.cbtn').forEach(btn => btn.addEventListener('click', () => {
+    addTap(+btn.dataset.f, +btn.dataset.b);
+    btn.classList.add('flash'); setTimeout(() => btn.classList.remove('flash'), 150);
+    if (navigator.vibrate) navigator.vibrate(15);
+  }));
+  $('undoBtn').addEventListener('click', () => {
+    let id = history.pop();
+    if (!id) {
+      const today = data.visits.filter(v => dayKey(v.ts) === todayKey()).sort((a, b) => b.ts - a.ts)[0];
+      if (!today) return;
+      if (!confirm(`${fmtTime(today.ts)} の記録（${today.f ? '外国人' : '日本人'}・${BL[today.b]}・${Q(today)}名）を取り消しますか？`)) return;
+      id = today.id;
+    }
+    removeVisit(id);
+    $('lastLabel').textContent = '1つ取り消しました';
+  });
+
+  function removeVisit(id) {
+    const v = data.visits.find(x => x.id === id); if (!v) return;
+    data.visits = data.visits.filter(x => x.id !== id);
+    if (v.cid) {
+      if (!data.visits.some(x => x.cid === v.cid)) delete data.customers[v.cid];
+      else renumber(v.cid);
+    }
+    save(); render();
+  }
+
+  // ---------- named record ----------
+  function recordNamed(name, tel, foreign) {
+    name = norm(name); tel = norm(tel).replace(/\D/g, '').slice(0, 4);
+    if (!name) return;
+    let c = findCustomer(name, tel);
+    if (!c) { c = { id: uid(), name, tel, foreign: !!foreign }; data.customers[c.id] = c; }
+    else if (foreign && !c.foreign) c.foreign = true;
+    const v = { id: uid(), ts: Date.now(), cid: c.id, f: c.foreign ? 1 : 0 };
+    data.visits.push(v); renumber(c.id); history.push(v.id); save();
+    const prev = visitsOf(c.id).slice(-2, -1)[0];
+    $('rWho').textContent = `${c.name} 様${c.tel ? `（${c.tel}）` : ''}${c.foreign ? ' ・外国人' : ''}`;
+    $('rNth').textContent = v.n === 1 ? '初めてのご来訪' : `${v.n}回目のご来訪`;
+    $('rNth').classList.toggle('first', v.n === 1);
+    $('rMeta').textContent = prev ? `前回：${fmtDate(prev.ts)}（${WD[new Date(prev.ts).getDay()]}）` : 'ようこそお参りくださいました';
+    const r = $('result'); r.classList.remove('show'); void r.offsetWidth; r.classList.add('show');
+    $('lastLabel').textContent = `${fmtTime(v.ts)} ${c.name} 様（${BL[v.b]}）を記録しました`;
+    render();
+  }
+  $('entryForm').addEventListener('submit', e => {
+    e.preventDefault();
+    recordNamed($('inName').value, $('inTel').value, $('inForeign').checked);
+    $('inName').value = ''; $('inTel').value = ''; $('inForeign').checked = false;
+    hideSuggest(); $('inName').focus();
+  });
+
+  // suggest
+  let sugIdx = -1, sugItems = [];
+  function custStats() {
+    const m = {};
+    for (const v of data.visits) if (v.cid) {
+      const s = m[v.cid] || (m[v.cid] = { count: 0, first: Infinity, last: 0 });
+      s.count++; s.first = Math.min(s.first, v.ts); s.last = Math.max(s.last, v.ts);
+    }
+    return m;
+  }
+  function showSuggest() {
+    const q = norm($('inName').value).replace(/ /g, '').toLowerCase();
+    if (!q) return hideSuggest();
+    const st = custStats();
+    sugItems = Object.values(data.customers)
+      .filter(c => norm(c.name).replace(/ /g, '').toLowerCase().includes(q) || (c.tel && c.tel.startsWith(q)))
+      .sort((a, b) => (st[b.id]?.last || 0) - (st[a.id]?.last || 0)).slice(0, 6);
+    if (!sugItems.length) return hideSuggest();
+    sugIdx = -1;
+    $('suggest').innerHTML = sugItems.map((c, i) => `<div data-i="${i}"><span>${esc(c.name)}${c.tel ? ` <small>${esc(c.tel)}</small>` : ''}${c.foreign ? ' <small>外</small>' : ''}</span><small>${st[c.id]?.count || 0}回</small></div>`).join('');
+    $('suggest').classList.add('show');
+  }
+  function hideSuggest() { $('suggest').classList.remove('show'); sugIdx = -1; }
+  function pickSuggest(i) { const c = sugItems[i]; if (!c) return; $('inName').value = c.name; $('inTel').value = c.tel || ''; $('inForeign').checked = !!c.foreign; hideSuggest(); }
+  $('inName').addEventListener('input', showSuggest);
+  $('inName').addEventListener('blur', () => setTimeout(hideSuggest, 150));
+  $('inName').addEventListener('keydown', e => {
+    const box = $('suggest'); if (!box.classList.contains('show')) return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault(); sugIdx = (sugIdx + (e.key === 'ArrowDown' ? 1 : -1) + sugItems.length) % sugItems.length;
+      [...box.children].forEach((el, i) => el.classList.toggle('active', i === sugIdx));
+    } else if (e.key === 'Enter' && sugIdx >= 0) { e.preventDefault(); pickSuggest(sugIdx); }
+    else if (e.key === 'Escape') hideSuggest();
+  });
+  $('suggest').addEventListener('mousedown', e => { const el = e.target.closest('[data-i]'); if (el) { e.preventDefault(); pickSuggest(+el.dataset.i); } });
+
+  // ---------- tabs ----------
+  document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x === t));
+    document.querySelectorAll('.panel').forEach(p => p.classList.toggle('on', p.id === 'p-' + t.dataset.tab));
+  }));
+  let sumMode = 'today';
+  $('sumSeg').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    sumMode = b.dataset.v; [...$('sumSeg').children].forEach(x => x.classList.toggle('on', x === b)); renderSummary();
+  });
+  $('logDate').value = todayKey();
+  $('logDate').addEventListener('change', renderLog);
+  $('custSearch').addEventListener('input', renderCustomers);
+  $('custSort').addEventListener('change', renderCustomers);
+  $('trendRange').addEventListener('change', renderTrend);
+  $('trendBy').addEventListener('change', renderTrend);
+
+  // ---------- render ----------
+  function tally(list) {
+    const t = { 0: { 1: 0, 2: 0, 3: 0 }, 1: { 1: 0, 2: 0, 3: 0 } };
+    for (const v of list) t[v.f ? 1 : 0][v.b] += Q(v);
+    return t;
+  }
+  const sum3 = r => r[1] + r[2] + r[3];
+
+  function render() {
+    const d = new Date();
+    $('todayLabel').textContent = `${d.getMonth() + 1}月${d.getDate()}日（${WD[d.getDay()]}）`;
+    const t = tally(data.visits.filter(v => dayKey(v.ts) === todayKey()));
+    document.querySelectorAll('.cbtn').forEach(btn => btn.querySelector('.c').textContent = t[btn.dataset.f][btn.dataset.b]);
+    $('tTotal').textContent = sum3(t[0]) + sum3(t[1]);
+    $('tSplit').textContent = `日本人 ${sum3(t[0])} ／ 外国人 ${sum3(t[1])}`;
+    renderSummary(); renderLog(); renderCustomers(); renderTrend();
+  }
+
+  function renderSummary() {
+    const now = Date.now();
+    const list = sumMode === 'today' ? data.visits.filter(v => dayKey(v.ts) === dayKey(now))
+      : sumMode === 'month' ? data.visits.filter(v => monthKey(v.ts) === monthKey(now)) : data.visits;
+    const t = tally(list);
+    const tot = { 1: t[0][1] + t[1][1], 2: t[0][2] + t[1][2], 3: t[0][3] + t[1][3] };
+    const row = (lbl, r, cls = '') => `<tr class="${cls}"><td>${lbl}</td><td class="n">${r[1]}</td><td class="n">${r[2]}</td><td class="n">${r[3]}</td><td class="n"><b>${sum3(r)}</b></td></tr>`;
+    $('sumBody').innerHTML = row('日本人', t[0]) + row('外国人', t[1]) + row('合計', tot, 'sum');
+  }
+
+  function renderLog() {
+    const k = $('logDate').value || todayKey();
+    const list = data.visits.filter(v => dayKey(v.ts) === k).sort((a, b) => b.ts - a.ts);
+    if (!list.length) { $('logBody').innerHTML = `<tr><td colspan="4" class="empty">この日の記録はありません</td></tr>`; $('logSummary').textContent = ''; return; }
+    $('logBody').innerHTML = list.map(v => {
+      const c = v.cid && data.customers[v.cid];
+      const who = c ? `<a href="#" data-cid="${c.id}" style="color:inherit">${esc(c.name)}</a>${c.tel ? ` <span class="muted">${esc(c.tel)}</span>` : ''}` : '<span class="muted">（カウントのみ）</span>';
+      const lab = c && v.n ? `${v.n}回目` : BL[v.b];
+      return `<tr><td>${fmtTime(v.ts)}</td><td>${who}</td>
+        <td><span class="badge ${v.b === 1 ? 'b1' : ''}">${lab}</span> ${v.f ? '<span class="badge fg">外国人</span>' : ''} ${Q(v) > 1 ? `<b>×${Q(v)}名</b>` : ''}</td>
+        <td class="n"><button class="btn-ghost btn-small btn-danger" data-del="${v.id}">削除</button></td></tr>`;
+    }).join('');
+    const t = tally(list);
+    $('logSummary').textContent = `計 ${sum3(t[0]) + sum3(t[1])}名（日本人 ${sum3(t[0])} ／ 外国人 ${sum3(t[1])}）`;
+  }
+  $('logBody').addEventListener('click', e => {
+    const del = e.target.closest('[data-del]');
+    if (del) { if (confirm('この記録を削除しますか？')) removeVisit(del.dataset.del); return; }
+    const a = e.target.closest('[data-cid]'); if (a) { e.preventDefault(); openCustomer(a.dataset.cid); }
+  });
+
+  function renderCustomers() {
+    const st = custStats();
+    const q = norm($('custSearch').value).replace(/ /g, '').toLowerCase();
+    const s = c => st[c.id] || { count: 0, first: 0, last: 0 };
+    const list = Object.values(data.customers).filter(c => !q || norm(c.name).replace(/ /g, '').toLowerCase().includes(q) || (c.tel || '').includes(q));
+    list.sort({
+      count: (a, b) => s(b).count - s(a).count || s(b).last - s(a).last,
+      last: (a, b) => s(b).last - s(a).last,
+      first: (a, b) => s(b).first - s(a).first,
+      name: (a, b) => a.name.localeCompare(b.name, 'ja'),
+    }[$('custSort').value]);
+    $('custBody').innerHTML = list.length ? list.map(c => `<tr class="clickable" data-cid="${c.id}">
+      <td>${esc(c.name)} ${c.foreign ? '<span class="badge fg">外</span>' : ''}</td><td>${esc(c.tel || '')}</td><td class="n">${s(c).count}</td>
+      <td>${s(c).first ? fmtDate(s(c).first) : ''}</td><td>${s(c).last ? fmtDate(s(c).last) : ''}</td></tr>`).join('')
+      : `<tr><td colspan="5" class="empty">${q ? '該当するお客様はいません' : 'まだ登録がありません'}</td></tr>`;
+  }
+  $('custBody').addEventListener('click', e => { const tr = e.target.closest('[data-cid]'); if (tr) openCustomer(tr.dataset.cid); });
+
+  function renderTrend() {
+    const days = +$('trendRange').value, by = $('trendBy').value;
+    const series = by === 'bucket'
+      ? [{ k: v => v.b === 1, c: '#b08a3e', l: '1回目' }, { k: v => v.b === 2, c: '#b8325a', l: '2回目' }, { k: v => v.b === 3, c: '#7a1f2b', l: '3回目以上' }]
+      : [{ k: v => !v.f, c: '#b8325a', l: '日本人' }, { k: v => !!v.f, c: '#2d4f7c', l: '外国人' }];
+    const now = new Date(); now.setHours(0, 0, 0, 0);
+    const buckets = [];
+    for (let i = days - 1; i >= 0; i--) { const d = new Date(now); d.setDate(d.getDate() - i); buckets.push({ key: dayKey(d), d, vals: series.map(() => 0) }); }
+    const idx = Object.fromEntries(buckets.map((b, i) => [b.key, i]));
+    for (const v of data.visits) { const i = idx[dayKey(v.ts)]; if (i === undefined) continue; series.forEach((s, j) => { if (s.k(v)) buckets[i].vals[j] += Q(v); }); }
+    const max = Math.max(1, ...buckets.map(b => b.vals.reduce((a, x) => a + x, 0)));
+    $('bars').innerHTML = buckets.map(b => {
+      const t = b.vals.reduce((a, x) => a + x, 0);
+      const tip = series.map((s, j) => `${s.l}${b.vals[j]}`).join('・');
+      return `<div class="b" title="${b.d.getMonth() + 1}/${b.d.getDate()} 計${t}（${tip}）"><span class="v">${t || ''}</span>
+        <div class="col" style="height:${(t / max) * 78}%">${series.map((s, j) => `<div style="flex:${b.vals[j]};background:${s.c}"></div>`).join('')}</div>
+        <span class="d">${b.d.getDate()}</span></div>`;
+    }).join('');
+    $('legend').innerHTML = series.map(s => `<span><i style="background:${s.c}"></i>${s.l}</span>`).join('');
+  }
+
+  // ---------- customer dialog ----------
+  let curCid = null;
+  function openCustomer(cid) {
+    const c = data.customers[cid]; if (!c) return;
+    curCid = cid;
+    const vs = visitsOf(cid);
+    $('dName').textContent = `${c.name} 様`;
+    $('dMeta').textContent = [c.tel && '電話下4桁 ' + c.tel, c.foreign ? '外国人' : '日本人', `来訪 ${vs.length}回`].filter(Boolean).join(' ・ ');
+    $('dVisits').innerHTML = vs.slice().reverse().map(v => `<li><span>${v.n}回目</span><span>${fmtDate(v.ts)}（${WD[new Date(v.ts).getDay()]}） ${fmtTime(v.ts)}</span></li>`).join('');
+    $('custDlg').showModal();
+  }
+  $('dClose').addEventListener('click', () => $('custDlg').close());
+  $('dVisit').addEventListener('click', () => {
+    const c = data.customers[curCid]; $('custDlg').close();
+    if (c) { recordNamed(c.name, c.tel, c.foreign); window.scrollTo({ top: $('entryForm').offsetTop - 80, behavior: 'smooth' }); }
+  });
+  $('dEdit').addEventListener('click', () => {
+    const c = data.customers[curCid]; if (!c) return;
+    const name = prompt('お名前', c.name); if (name === null) return;
+    const tel = prompt('電話 下4桁（空欄可）', c.tel || ''); if (tel === null) return;
+    const foreign = confirm('外国人のお客様ですか？\n「OK」= 外国人 ／「キャンセル」= 日本人');
+    const nn = norm(name), nt = norm(tel).replace(/\D/g, '').slice(0, 4);
+    if (!nn) return;
+    const dup = findCustomer(nn, nt);
+    if (dup && dup.id !== c.id) {
+      if (!confirm(`「${dup.name}${dup.tel ? '（' + dup.tel + '）' : ''}」様がすでにいます。来訪記録を統合しますか？`)) return;
+      data.visits.forEach(v => { if (v.cid === c.id) v.cid = dup.id; });
+      delete data.customers[c.id]; dup.foreign = foreign; curCid = dup.id;
+    } else { c.name = nn; c.tel = nt; c.foreign = foreign; }
+    renumber(curCid); save(); render(); openCustomer(curCid);
+  });
+  $('dDelete').addEventListener('click', () => {
+    const c = data.customers[curCid]; if (!c) return;
+    if (!confirm(`${c.name} 様と来訪記録をすべて削除しますか？`)) return;
+    data.visits = data.visits.filter(v => v.cid !== curCid); delete data.customers[curCid];
+    save(); render(); $('custDlg').close();
+  });
+
+  // ---------- CSV ----------
+  const csvCell = s => /[",\n]/.test(String(s)) ? `"${String(s).replace(/"/g, '""')}"` : String(s);
+  $('exportCsv').addEventListener('click', () => {
+    const rows = [['日時', '区分', '国籍', '人数', 'お名前', '電話下4桁', '来訪回数']];
+    for (const v of [...data.visits].sort((a, b) => a.ts - b.ts)) {
+      const c = v.cid && data.customers[v.cid];
+      const d = new Date(v.ts);
+      rows.push([`${dayKey(v.ts)} ${fmtTime(v.ts)}:${pad(d.getSeconds())}`, BL[v.b], v.f ? '外国人' : '日本人', Q(v), c ? c.name : '', c ? c.tel || '' : '', c ? v.n : '']);
+    }
+    const csv = '﻿' + rows.map(r => r.map(csvCell).join(',')).join('\r\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    a.download = `kitano-visitors-${todayKey()}.csv`; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+  function parseCsv(text) {
+    const rows = []; let row = [], cell = '', q = false;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (q) { if (ch === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += ch; }
+      else if (ch === '"') q = true;
+      else if (ch === ',') { row.push(cell); cell = ''; }
+      else if (ch === '\n' || ch === '\r') { if (ch === '\r' && text[i + 1] === '\n') i++; row.push(cell); rows.push(row); row = []; cell = ''; }
+      else cell += ch;
+    }
+    if (cell || row.length) { row.push(cell); rows.push(row); }
+    return rows;
+  }
+  const parseTs = s => Date.parse(String(s).trim().replace(/\//g, '-').replace(' ', 'T'));
+  $('importCsv').addEventListener('change', async e => {
+    const f = e.target.files[0]; if (!f) return;
+    const rows = parseCsv((await f.text()).replace(/^﻿/, '')).filter(r => r.length >= 3 && !isNaN(parseTs(r[0])));
+    const seen = new Set(data.visits.map(v => `${v.ts}|${v.cid || ''}|${v.b}|${v.f}|${Q(v)}`));
+    const touched = new Set(); let added = 0;
+    for (const [dt, bl, nat, qs, name, tel] of rows) {
+      const ts = parseTs(dt);
+      const q = Math.max(1, parseInt(qs) || 1);
+      const b = bl.includes('3') ? 3 : bl.includes('2') ? 2 : 1;
+      const fg = nat.includes('外') ? 1 : 0;
+      let cid;
+      const nn = norm(name);
+      if (nn) {
+        const nt = norm(tel || '').replace(/\D/g, '').slice(0, 4);
+        let c = findCustomer(nn, nt);
+        if (!c) { c = { id: uid(), name: nn, tel: nt, foreign: !!fg }; data.customers[c.id] = c; }
+        cid = c.id;
+      }
+      const sig = `${ts}|${cid || ''}|${b}|${fg}|${q}`;
+      if (seen.has(sig) && !cid) continue;
+      if (cid && data.visits.some(v => v.cid === cid && v.ts === ts)) continue;
+      seen.add(sig);
+      data.visits.push(cid ? { id: uid(), ts, cid, b, f: fg } : (q > 1 ? { id: uid(), ts, b, f: fg, q } : { id: uid(), ts, b, f: fg }));
+      if (cid) touched.add(cid);
+      added++;
+    }
+    touched.forEach(renumber);
+    save(); render(); e.target.value = '';
+    alert(`${added}件の記録を読み込みました`);
+  });
+  $('clearAll').addEventListener('click', () => {
+    if (!confirm('全データを消去します。先にCSVで書き出すことをおすすめします。消去しますか？')) return;
+    if (!confirm('本当に消去してよろしいですか？元に戻せません。')) return;
+    data = { customers: {}, visits: [] }; history.length = 0; save(); render();
+  });
+
+  let shownDay = todayKey();
+  setInterval(() => { if (shownDay !== todayKey()) { shownDay = todayKey(); $('logDate').value = shownDay; render(); } }, 60000);
+  render();
+})();
+</script>
+</body>
+</html>
