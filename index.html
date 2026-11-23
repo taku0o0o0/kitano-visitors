@@ -33,12 +33,6 @@
   .total .num { font-size: 52px; font-weight: 700; color: var(--shu); line-height: 1; font-variant-numeric: tabular-nums; }
   .total .lbl { font-size: 14px; color: var(--sub); }
   .total .split { font-size: 13px; color: var(--sub); margin-left: 10px; }
-  .qty { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
-  .qty .ql { font-size: 13px; color: var(--sub); white-space: nowrap; margin-right: 2px; }
-  .qty button { flex: 1; min-width: 0; max-width: 56px; height: 44px; border: 1px solid var(--line); background: #fff; border-radius: 10px; font-size: 18px; font-weight: 600; color: var(--ink); padding: 0; }
-  .qty button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
-  .qty .qv { font-size: 24px; font-weight: 700; min-width: 34px; text-align: center; font-variant-numeric: tabular-nums; }
-  .qty .sep { width: 1px; height: 28px; background: var(--line); margin: 0 2px; flex: none; }
   .grid { display: grid; grid-template-columns: 52px repeat(3, 1fr); gap: 8px; align-items: stretch; }
   .grid .rowlbl { display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; border-radius: 10px; text-align: center; }
   .grid .rowlbl.jp { background: var(--ume-soft); color: var(--shu); }
@@ -195,12 +189,6 @@
       <span class="lbl">本日</span><span class="num" id="tTotal">0</span><span class="lbl">名</span>
       <span class="split" id="tSplit"></span>
     </div>
-    <div class="qty" id="qty">
-      <span class="ql">人数</span>
-      <button data-q="1" class="on">1</button><button data-q="2">2</button><button data-q="3">3</button><button data-q="4">4</button><button data-q="5">5</button>
-      <span class="sep"></span>
-      <button id="qMinus">−</button><span class="qv" id="qVal">1</span><button id="qPlus">＋</button>
-    </div>
     <div class="grid">
       <div></div>
       <div class="colhead">1回目</div><div class="colhead">2回目</div><div class="colhead">3回目以上</div>
@@ -220,7 +208,6 @@
     </div>
     <div class="undo-row">
       <span class="last" id="lastLabel"></span>
-      <button class="btn-ghost btn-small" id="undoBtn">↶ 直前の送信を取り消す</button>
     </div>
   </section>
 
@@ -314,15 +301,6 @@
   // ---------- live counter ----------
   const history = []; // visit ids added this session, for undo
   const Q = v => v.q || 1;
-  let qty = 1;
-  function setQty(n) {
-    qty = Math.max(1, Math.min(99, n));
-    $('qVal').textContent = qty;
-    document.querySelectorAll('#qty [data-q]').forEach(b => b.classList.toggle('on', +b.dataset.q === qty));
-  }
-  $('qty').addEventListener('click', e => { const b = e.target.closest('[data-q]'); if (b) setQty(+b.dataset.q); });
-  $('qMinus').addEventListener('click', () => setQty(qty - 1));
-  $('qPlus').addEventListener('click', () => setQty(qty + 1));
   // draft: pending taps for the current group, committed with 送信
   let draft = {}; // "f-b" -> people
   const draftTotal = () => Object.values(draft).reduce((a, x) => a + x, 0);
@@ -340,8 +318,7 @@
   }
   function tap(f, b) {
     const k = f + '-' + b;
-    draft[k] = (draft[k] || 0) + qty;
-    setQty(1);
+    draft[k] = (draft[k] || 0) + 1;
     renderDraft();
   }
   document.querySelectorAll('.cbtn').forEach(btn => btn.addEventListener('click', () => {
@@ -349,7 +326,7 @@
     btn.classList.add('flash'); setTimeout(() => btn.classList.remove('flash'), 150);
     try { navigator.vibrate && navigator.vibrate(15); } catch (e) {}
   }));
-  $('clearBtn').addEventListener('click', () => { draft = {}; setQty(1); renderDraft(); });
+  $('clearBtn').addEventListener('click', () => { draft = {}; renderDraft(); });
 
   const groupsToday = () => new Set(data.visits.filter(v => dayKey(v.ts) === todayKey()).map(v => v.g || v.id)).size;
   let sentTimer;
@@ -370,22 +347,6 @@
     const el = $('sent'); el.classList.add('show');
     clearTimeout(sentTimer); sentTimer = setTimeout(() => el.classList.remove('show'), 1100);
     try { navigator.vibrate && navigator.vibrate([20, 40, 20]); } catch (e) {}
-  });
-
-  $('undoBtn').addEventListener('click', () => {
-    let g = history[history.length - 1];
-    let list = g ? data.visits.filter(v => (v.g || v.id) === g) : [];
-    if (!list.length) {
-      const last = data.visits.filter(v => dayKey(v.ts) === todayKey()).sort((a, b) => b.ts - a.ts)[0];
-      if (!last) return;
-      g = last.g || last.id; list = data.visits.filter(v => (v.g || v.id) === g);
-    }
-    const n = list.reduce((a, v) => a + Q(v), 0);
-    if (!confirm(`${fmtTime(list[0].ts)} の送信（${n}名）を取り消しますか？`)) return;
-    data.visits = data.visits.filter(v => (v.g || v.id) !== g);
-    if (history[history.length - 1] === g) history.pop();
-    save(); render();
-    $('lastLabel').textContent = '直前の送信を取り消しました';
   });
 
   function removeVisit(id) {
