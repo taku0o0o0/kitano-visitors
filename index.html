@@ -19,45 +19,46 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
   .mincho { font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif; }
-  .screen {
-    height: 100vh; height: 100dvh; display: flex; flex-direction: column;
-    max-width: 720px; margin: 0 auto; padding: 0 10px 6px;
-  }
   header {
-    background: var(--shu); color: #fff; margin: 0 -10px; padding: calc(8px + env(safe-area-inset-top)) 14px 8px;
-    display: flex; align-items: center; gap: 10px; flex: none;
+    background: var(--shu); color: #fff; padding: calc(12px + env(safe-area-inset-top)) 18px 12px;
+    display: flex; align-items: center; gap: 10px;
   }
-  @media (min-width: 740px) { header { margin: 0; border-radius: 0 0 14px 14px; } }
-  header svg { width: 28px; height: 28px; flex: none; }
-  header .htxt { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-  header .date { font-size: 14px; font-weight: 600; letter-spacing: .05em; }
-  header .split { font-size: 12px; opacity: .85; white-space: nowrap; }
-  header .htotal { margin-left: auto; display: flex; align-items: baseline; gap: 2px; }
-  header .htotal .num { font-size: 40px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
-  header .htotal .u { font-size: 14px; opacity: .85; }
+  header svg { width: 30px; height: 30px; flex: none; }
+  header h1 { font-size: 18px; margin: 0; letter-spacing: .12em; font-weight: 600; }
+  header .date { margin-left: auto; font-size: 13px; opacity: .85; }
 
-  .qty { display: flex; align-items: center; gap: 5px; padding: 8px 0; flex: none; }
-  .qty .ql { font-size: 12px; color: var(--sub); white-space: nowrap; margin-right: 2px; }
-  .qty button { flex: 1; min-width: 0; height: 42px; border: 1px solid var(--line); background: #fff; border-radius: 10px; font-size: 18px; font-weight: 600; color: var(--ink); padding: 0; }
+  /* live counter */
+  .counter { padding: 14px; }
+  .total { display: flex; align-items: baseline; justify-content: center; gap: 6px; margin: 0 0 10px; flex-wrap: wrap; }
+  .total .num { font-size: 52px; font-weight: 700; color: var(--shu); line-height: 1; font-variant-numeric: tabular-nums; }
+  .total .lbl { font-size: 14px; color: var(--sub); }
+  .total .split { font-size: 13px; color: var(--sub); margin-left: 10px; }
+  .qty { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+  .qty .ql { font-size: 13px; color: var(--sub); white-space: nowrap; margin-right: 2px; }
+  .qty button { flex: 1; min-width: 0; max-width: 56px; height: 44px; border: 1px solid var(--line); background: #fff; border-radius: 10px; font-size: 18px; font-weight: 600; color: var(--ink); padding: 0; }
   .qty button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
-  .qty button.pm { flex: .8; color: var(--sub); }
-  .qty .qv { min-width: 34px; text-align: center; font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
-
-  .grid {
-    flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto 1fr 1fr 1fr; gap: 8px;
-  }
-  .colhead { text-align: center; font-size: 14px; font-weight: 700; padding: 5px 0; border-radius: 8px; }
-  .colhead.jp { background: var(--ume-soft); color: var(--shu); }
-  .colhead.fg { background: var(--ai-soft); color: var(--ai); }
+  .qty .qv { font-size: 24px; font-weight: 700; min-width: 34px; text-align: center; font-variant-numeric: tabular-nums; }
+  .qty .sep { width: 1px; height: 28px; background: var(--line); margin: 0 2px; flex: none; }
+  .grid { display: grid; grid-template-columns: 52px repeat(3, 1fr); gap: 8px; align-items: stretch; }
+  .grid .rowlbl { display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; border-radius: 10px; text-align: center; }
+  .grid .rowlbl.jp { background: var(--ume-soft); color: var(--shu); }
+  .grid .rowlbl.fg { background: var(--ai-soft); color: var(--ai); }
+  .colhead { text-align: center; font-size: 12px; color: var(--sub); }
   .cbtn {
-    border: none; border-radius: 16px; cursor: pointer; font: inherit; min-height: 0;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
-    transition: transform .06s ease, filter .15s; user-select: none; -webkit-user-select: none; touch-action: manipulation;
+    position: relative; border: none; border-radius: 14px; padding: 12px 4px 10px; cursor: pointer; font: inherit;
+    display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 92px; justify-content: center;
+    transition: transform .06s ease, filter .15s, box-shadow .15s; user-select: none; -webkit-user-select: none; touch-action: manipulation;
   }
-  .cbtn:active { transform: scale(.97); }
-  .cbtn .t { font-size: 16px; font-weight: 600; opacity: .95; }
-  .cbtn .c { font-size: clamp(30px, 7vh, 60px); font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.05; }
+  .cbtn:active { transform: scale(.96); }
+  .cbtn .t { font-size: 13px; font-weight: 600; }
+  .cbtn .c { font-size: 32px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .cbtn .p {
+    position: absolute; top: -8px; right: -6px; min-width: 34px; padding: 3px 8px; border-radius: 99px;
+    background: #fff; color: var(--ink); font-size: 16px; font-weight: 800; box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    display: none;
+  }
+  .cbtn.pending { box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--gold); }
+  .cbtn.pending .p { display: block; }
   .cbtn.jp { background: var(--ume); color: #fff; }
   .cbtn.jp.b2 { background: #9b2748; }
   .cbtn.jp.b3 { background: var(--shu); }
@@ -65,9 +66,35 @@
   .cbtn.fg.b2 { background: var(--ai); }
   .cbtn.fg.b3 { background: #1e3756; }
   .cbtn.flash { filter: brightness(1.35); }
-  .undo-row { display: flex; gap: 8px; padding-top: 8px; align-items: center; flex: none; }
-  .undo-row .last { font-size: 13px; color: var(--sub); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .undo-row .btn-ghost { padding: 10px 14px; }
+
+  .send-row { display: flex; gap: 8px; margin-top: 14px; }
+  .send-row .btn-ghost { flex: none; padding: 0 16px; }
+  .btn-send {
+    flex: 1; height: 60px; border: none; border-radius: 14px; background: var(--gold); color: #fff;
+    font-size: 20px; font-weight: 700; letter-spacing: .15em; transition: background .2s, transform .06s;
+  }
+  .btn-send:active { transform: scale(.98); }
+  .btn-send:disabled { background: #d9d2c7; color: #fff; cursor: default; letter-spacing: .05em; font-size: 15px; font-weight: 600; }
+  .draft { min-height: 20px; font-size: 13px; color: var(--ink); margin-top: 8px; text-align: center; }
+  .undo-row { display: flex; gap: 8px; margin-top: 8px; align-items: center; }
+  .undo-row .last { font-size: 13px; color: var(--sub); flex: 1; min-width: 0; }
+
+  .sent {
+    position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center;
+    background: rgba(250,247,242,.6); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
+    pointer-events: none; opacity: 0; transition: opacity .2s;
+  }
+  .sent.show { opacity: 1; }
+  .sent .box {
+    background: var(--shu); color: #fff; border-radius: 22px; padding: 26px 40px; text-align: center;
+    box-shadow: 0 20px 60px rgba(122,31,43,.35); transform: scale(.85); transition: transform .25s cubic-bezier(.2,1.4,.4,1);
+  }
+  .sent.show .box { transform: scale(1); }
+  .sent .ck { width: 64px; height: 64px; border-radius: 50%; background: #fff; color: var(--shu); font-size: 40px; font-weight: 900; line-height: 64px; margin: 0 auto 10px; }
+  .sent .h { font-size: 22px; font-weight: 700; letter-spacing: .1em; }
+  .sent .s { font-size: 14px; opacity: .9; margin-top: 4px; }
+  .sent .n { font-size: 13px; opacity: .8; margin-top: 10px; }
+
   main { max-width: 920px; margin: 0 auto; padding: 16px 14px 40px; }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
   .card h2 { font-size: 15px; margin: 0 0 12px; letter-spacing: .08em; color: var(--shu); display: flex; align-items: center; gap: 8px; }
@@ -151,43 +178,52 @@
 </style>
 </head>
 <body>
-<div class="screen">
-  <header>
-    <svg viewBox="0 0 40 40" aria-hidden="true">
-      <g fill="#fff"><circle cx="20" cy="9" r="7"/><circle cx="30.5" cy="16.6" r="7"/><circle cx="26.5" cy="29" r="7"/><circle cx="13.5" cy="29" r="7"/><circle cx="9.5" cy="16.6" r="7"/></g>
-      <circle cx="20" cy="20" r="4.2" fill="#7a1f2b"/>
-    </svg>
-    <div class="htxt">
-      <div class="date" id="todayLabel"></div>
-      <div class="split" id="tSplit"></div>
-    </div>
-    <div class="htotal"><span class="num" id="tTotal">0</span><span class="u">名</span></div>
-  </header>
-
-  <div class="qty" id="qty">
-    <span class="ql">人数</span>
-    <button data-q="1" class="on">1</button><button data-q="2">2</button><button data-q="3">3</button><button data-q="4">4</button><button data-q="5">5</button>
-    <button id="qMinus" class="pm">−</button><span class="qv" id="qVal">1</span><button id="qPlus" class="pm">＋</button>
-  </div>
-
-  <div class="grid">
-    <div class="colhead jp">日本人</div><div class="colhead fg">外国人</div>
-    <button class="cbtn jp b1" data-f="0" data-b="1"><span class="t">1回目</span><span class="c">0</span></button>
-    <button class="cbtn fg b1" data-f="1" data-b="1"><span class="t">1回目</span><span class="c">0</span></button>
-    <button class="cbtn jp b2" data-f="0" data-b="2"><span class="t">2回目</span><span class="c">0</span></button>
-    <button class="cbtn fg b2" data-f="1" data-b="2"><span class="t">2回目</span><span class="c">0</span></button>
-    <button class="cbtn jp b3" data-f="0" data-b="3"><span class="t">3回目以上</span><span class="c">0</span></button>
-    <button class="cbtn fg b3" data-f="1" data-b="3"><span class="t">3回目以上</span><span class="c">0</span></button>
-  </div>
-
-  <div class="undo-row">
-    <span class="last" id="lastLabel">人数を選んでタップ</span>
-    <button class="btn-ghost" id="undoBtn">↶ 取り消し</button>
-  </div>
-  <div class="more">↓ 集計・ログ</div>
-</div>
+<header>
+  <svg viewBox="0 0 40 40" aria-hidden="true">
+    <g fill="#fff"><circle cx="20" cy="9" r="7"/><circle cx="30.5" cy="16.6" r="7"/><circle cx="26.5" cy="29" r="7"/><circle cx="13.5" cy="29" r="7"/><circle cx="9.5" cy="16.6" r="7"/></g>
+    <circle cx="20" cy="20" r="4.2" fill="#7a1f2b"/>
+  </svg>
+  <h1 class="mincho">北野天満宮 来訪カウンター</h1>
+  <span class="date" id="todayLabel"></span>
+</header>
 
 <main>
+  <!-- live counter -->
+  <section class="card counter">
+    <h2 class="mincho">ライブカウント（本日）<span class="r" id="groupLabel" style="font-size:12px;color:var(--sub);letter-spacing:0"></span></h2>
+    <div class="total">
+      <span class="lbl">本日</span><span class="num" id="tTotal">0</span><span class="lbl">名</span>
+      <span class="split" id="tSplit"></span>
+    </div>
+    <div class="qty" id="qty">
+      <span class="ql">人数</span>
+      <button data-q="1" class="on">1</button><button data-q="2">2</button><button data-q="3">3</button><button data-q="4">4</button><button data-q="5">5</button>
+      <span class="sep"></span>
+      <button id="qMinus">−</button><span class="qv" id="qVal">1</span><button id="qPlus">＋</button>
+    </div>
+    <div class="grid">
+      <div></div>
+      <div class="colhead">1回目</div><div class="colhead">2回目</div><div class="colhead">3回目以上</div>
+      <div class="rowlbl jp">日本人</div>
+      <button class="cbtn jp b1" data-f="0" data-b="1"><span class="t">1回目</span><span class="c">0</span><span class="p"></span></button>
+      <button class="cbtn jp b2" data-f="0" data-b="2"><span class="t">2回目</span><span class="c">0</span><span class="p"></span></button>
+      <button class="cbtn jp b3" data-f="0" data-b="3"><span class="t">3回目以上</span><span class="c">0</span><span class="p"></span></button>
+      <div class="rowlbl fg">外国人</div>
+      <button class="cbtn fg b1" data-f="1" data-b="1"><span class="t">1回目</span><span class="c">0</span><span class="p"></span></button>
+      <button class="cbtn fg b2" data-f="1" data-b="2"><span class="t">2回目</span><span class="c">0</span><span class="p"></span></button>
+      <button class="cbtn fg b3" data-f="1" data-b="3"><span class="t">3回目以上</span><span class="c">0</span><span class="p"></span></button>
+    </div>
+    <div class="draft" id="draftLabel"></div>
+    <div class="send-row">
+      <button class="btn-ghost" id="clearBtn">クリア</button>
+      <button class="btn-send" id="sendBtn" disabled>区分をタップしてください</button>
+    </div>
+    <div class="undo-row">
+      <span class="last" id="lastLabel"></span>
+      <button class="btn-ghost btn-small" id="undoBtn">↶ 直前の送信を取り消す</button>
+    </div>
+  </section>
+
   <!-- summary -->
   <section class="card">
     <h2 class="mincho">集計 <span class="r seg" id="sumSeg"><button data-v="today" class="on">本日</button><button data-v="month">今月</button><button data-v="all">累計</button></span></h2>
@@ -237,6 +273,8 @@
   </section>
 </main>
 
+<div class="sent" id="sent"><div class="box"><div class="ck">✓</div><div class="h">送信しました</div><div class="s" id="sentS"></div><div class="n">次の記録をどうぞ</div></div></div>
+
 <footer>北野天満宮 来訪カウンター ・ データはこの端末にのみ保存</footer>
 
 <script>
@@ -285,29 +323,69 @@
   $('qty').addEventListener('click', e => { const b = e.target.closest('[data-q]'); if (b) setQty(+b.dataset.q); });
   $('qMinus').addEventListener('click', () => setQty(qty - 1));
   $('qPlus').addEventListener('click', () => setQty(qty + 1));
-  function addTap(f, b) {
-    const v = { id: uid(), ts: Date.now(), b, f };
-    if (qty > 1) v.q = qty;
-    data.visits.push(v); history.push(v.id); save();
-    $('lastLabel').textContent = `${fmtTime(v.ts)} ${f ? '外国人' : '日本人'}・${BL[b]} を +${qty} しました`;
+  // draft: pending taps for the current group, committed with 送信
+  let draft = {}; // "f-b" -> people
+  const draftTotal = () => Object.values(draft).reduce((a, x) => a + x, 0);
+  const draftText = () => Object.entries(draft).map(([k, n]) => { const [f, b] = k.split('-'); return `${+f ? '外国人' : '日本人'}${BL[b]}×${n}`; }).join('、');
+  function renderDraft() {
+    document.querySelectorAll('.cbtn').forEach(btn => {
+      const n = draft[btn.dataset.f + '-' + btn.dataset.b] || 0;
+      btn.classList.toggle('pending', n > 0);
+      btn.querySelector('.p').textContent = n ? '+' + n : '';
+    });
+    const tot = draftTotal();
+    $('sendBtn').disabled = !tot;
+    $('sendBtn').textContent = tot ? `送信（${tot}名）` : '区分をタップしてください';
+    $('draftLabel').textContent = tot ? draftText() : '';
+  }
+  function tap(f, b) {
+    const k = f + '-' + b;
+    draft[k] = (draft[k] || 0) + qty;
     setQty(1);
-    render();
+    renderDraft();
   }
   document.querySelectorAll('.cbtn').forEach(btn => btn.addEventListener('click', () => {
-    addTap(+btn.dataset.f, +btn.dataset.b);
+    tap(+btn.dataset.f, +btn.dataset.b);
     btn.classList.add('flash'); setTimeout(() => btn.classList.remove('flash'), 150);
-    if (navigator.vibrate) navigator.vibrate(15);
+    try { navigator.vibrate && navigator.vibrate(15); } catch (e) {}
   }));
-  $('undoBtn').addEventListener('click', () => {
-    let id = history.pop();
-    if (!id) {
-      const today = data.visits.filter(v => dayKey(v.ts) === todayKey()).sort((a, b) => b.ts - a.ts)[0];
-      if (!today) return;
-      if (!confirm(`${fmtTime(today.ts)} の記録（${today.f ? '外国人' : '日本人'}・${BL[today.b]}・${Q(today)}名）を取り消しますか？`)) return;
-      id = today.id;
+  $('clearBtn').addEventListener('click', () => { draft = {}; setQty(1); renderDraft(); });
+
+  const groupsToday = () => new Set(data.visits.filter(v => dayKey(v.ts) === todayKey()).map(v => v.g || v.id)).size;
+  let sentTimer;
+  $('sendBtn').addEventListener('click', () => {
+    const tot = draftTotal(); if (!tot) return;
+    const g = uid(), ts = Date.now(), text = draftText();
+    for (const [k, n] of Object.entries(draft)) {
+      const [f, b] = k.split('-').map(Number);
+      const v = { id: uid(), ts, b, f, g };
+      if (n > 1) v.q = n;
+      data.visits.push(v);
     }
-    removeVisit(id);
-    $('lastLabel').textContent = '1つ取り消しました';
+    history.push(g); save();
+    draft = {}; renderDraft(); render();
+    const no = groupsToday();
+    $('sentS').textContent = `本日 第${no}組 ・ ${tot}名`;
+    $('lastLabel').textContent = `${fmtTime(ts)} 第${no}組：${text}`;
+    const el = $('sent'); el.classList.add('show');
+    clearTimeout(sentTimer); sentTimer = setTimeout(() => el.classList.remove('show'), 1100);
+    try { navigator.vibrate && navigator.vibrate([20, 40, 20]); } catch (e) {}
+  });
+
+  $('undoBtn').addEventListener('click', () => {
+    let g = history[history.length - 1];
+    let list = g ? data.visits.filter(v => (v.g || v.id) === g) : [];
+    if (!list.length) {
+      const last = data.visits.filter(v => dayKey(v.ts) === todayKey()).sort((a, b) => b.ts - a.ts)[0];
+      if (!last) return;
+      g = last.g || last.id; list = data.visits.filter(v => (v.g || v.id) === g);
+    }
+    const n = list.reduce((a, v) => a + Q(v), 0);
+    if (!confirm(`${fmtTime(list[0].ts)} の送信（${n}名）を取り消しますか？`)) return;
+    data.visits = data.visits.filter(v => (v.g || v.id) !== g);
+    if (history[history.length - 1] === g) history.pop();
+    save(); render();
+    $('lastLabel').textContent = '直前の送信を取り消しました';
   });
 
   function removeVisit(id) {
@@ -350,6 +428,7 @@
     document.querySelectorAll('.cbtn').forEach(btn => btn.querySelector('.c').textContent = t[btn.dataset.f][btn.dataset.b]);
     $('tTotal').textContent = sum3(t[0]) + sum3(t[1]);
     $('tSplit').textContent = `日本人 ${sum3(t[0])} ／ 外国人 ${sum3(t[1])}`;
+    $('groupLabel').textContent = `本日 ${groupsToday()}組`;
     renderSummary(); renderLog(); renderTrend();
   }
 
@@ -470,6 +549,7 @@
 
   let shownDay = todayKey();
   setInterval(() => { if (shownDay !== todayKey()) { shownDay = todayKey(); $('logDate').value = shownDay; render(); } }, 60000);
+  renderDraft();
   render();
 })();
 </script>
