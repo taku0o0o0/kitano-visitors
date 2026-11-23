@@ -19,36 +19,45 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
   .mincho { font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif; }
+  .screen {
+    height: 100vh; height: 100dvh; display: flex; flex-direction: column;
+    max-width: 720px; margin: 0 auto; padding: 0 10px 6px;
+  }
   header {
-    background: var(--shu); color: #fff; padding: calc(12px + env(safe-area-inset-top)) 18px 12px;
-    display: flex; align-items: center; gap: 10px;
+    background: var(--shu); color: #fff; margin: 0 -10px; padding: calc(8px + env(safe-area-inset-top)) 14px 8px;
+    display: flex; align-items: center; gap: 10px; flex: none;
   }
-  header svg { width: 30px; height: 30px; flex: none; }
-  header h1 { font-size: 18px; margin: 0; letter-spacing: .12em; font-weight: 600; }
-  header .date { margin-left: auto; font-size: 13px; opacity: .85; }
-  main { max-width: 920px; margin: 0 auto; padding: 16px 14px 40px; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
-  .card h2 { font-size: 15px; margin: 0 0 12px; letter-spacing: .08em; color: var(--shu); display: flex; align-items: center; gap: 8px; }
-  .card h2 .r { margin-left: auto; }
+  @media (min-width: 740px) { header { margin: 0; border-radius: 0 0 14px 14px; } }
+  header svg { width: 28px; height: 28px; flex: none; }
+  header .htxt { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  header .date { font-size: 14px; font-weight: 600; letter-spacing: .05em; }
+  header .split { font-size: 12px; opacity: .85; white-space: nowrap; }
+  header .htotal { margin-left: auto; display: flex; align-items: baseline; gap: 2px; }
+  header .htotal .num { font-size: 40px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+  header .htotal .u { font-size: 14px; opacity: .85; }
 
-  /* live counter */
-  .total { display: flex; align-items: baseline; justify-content: center; gap: 6px; margin: 2px 0 14px; }
-  .total .num { font-size: 56px; font-weight: 700; color: var(--shu); line-height: 1; font-variant-numeric: tabular-nums; }
-  .total .lbl { font-size: 14px; color: var(--sub); }
-  .total .split { font-size: 13px; color: var(--sub); margin-left: 10px; }
-  .grid { display: grid; grid-template-columns: 64px repeat(3, 1fr); gap: 8px; align-items: stretch; }
-  .grid .rowlbl { display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; border-radius: 10px; writing-mode: horizontal-tb; }
-  .grid .rowlbl.jp { background: var(--ume-soft); color: var(--shu); }
-  .grid .rowlbl.fg { background: var(--ai-soft); color: var(--ai); }
-  .cbtn {
-    border: none; border-radius: 14px; padding: 14px 6px 12px; cursor: pointer; font: inherit;
-    display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 96px; justify-content: center;
-    transition: transform .06s ease, filter .15s;
-    user-select: none;
+  .qty { display: flex; align-items: center; gap: 5px; padding: 8px 0; flex: none; }
+  .qty .ql { font-size: 12px; color: var(--sub); white-space: nowrap; margin-right: 2px; }
+  .qty button { flex: 1; min-width: 0; height: 42px; border: 1px solid var(--line); background: #fff; border-radius: 10px; font-size: 18px; font-weight: 600; color: var(--ink); padding: 0; }
+  .qty button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .qty button.pm { flex: .8; color: var(--sub); }
+  .qty .qv { min-width: 34px; text-align: center; font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  .grid {
+    flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr 1fr 1fr; gap: 8px;
   }
-  .cbtn:active { transform: scale(.96); }
-  .cbtn .t { font-size: 14px; font-weight: 600; }
-  .cbtn .c { font-size: 34px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .colhead { text-align: center; font-size: 14px; font-weight: 700; padding: 5px 0; border-radius: 8px; }
+  .colhead.jp { background: var(--ume-soft); color: var(--shu); }
+  .colhead.fg { background: var(--ai-soft); color: var(--ai); }
+  .cbtn {
+    border: none; border-radius: 16px; cursor: pointer; font: inherit; min-height: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+    transition: transform .06s ease, filter .15s; user-select: none; -webkit-user-select: none; touch-action: manipulation;
+  }
+  .cbtn:active { transform: scale(.97); }
+  .cbtn .t { font-size: 16px; font-weight: 600; opacity: .95; }
+  .cbtn .c { font-size: clamp(30px, 7vh, 60px); font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.05; }
   .cbtn.jp { background: var(--ume); color: #fff; }
   .cbtn.jp.b2 { background: #9b2748; }
   .cbtn.jp.b3 { background: var(--shu); }
@@ -56,16 +65,14 @@
   .cbtn.fg.b2 { background: var(--ai); }
   .cbtn.fg.b3 { background: #1e3756; }
   .cbtn.flash { filter: brightness(1.35); }
-  .head3 { display: contents; }
-  .colhead { text-align: center; font-size: 12px; color: var(--sub); }
-  .qty { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-  .qty .ql { font-size: 13px; color: var(--sub); margin-right: 2px; }
-  .qty button { border: 1px solid var(--line); background: #fff; border-radius: 10px; min-width: 44px; height: 44px; font-size: 18px; font-weight: 600; color: var(--ink); }
-  .qty button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
-  .qty .qv { font-size: 26px; font-weight: 700; min-width: 48px; text-align: center; font-variant-numeric: tabular-nums; }
-  .qty .sep { width: 1px; height: 28px; background: var(--line); margin: 0 4px; }
-  .undo-row { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
-  .undo-row .last { font-size: 13px; color: var(--sub); flex: 1; }
+  .undo-row { display: flex; gap: 8px; padding-top: 8px; align-items: center; flex: none; }
+  .undo-row .last { font-size: 13px; color: var(--sub); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .undo-row .btn-ghost { padding: 10px 14px; }
+  main { max-width: 920px; margin: 0 auto; padding: 16px 14px 40px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+  .card h2 { font-size: 15px; margin: 0 0 12px; letter-spacing: .08em; color: var(--shu); display: flex; align-items: center; gap: 8px; }
+  .card h2 .r { margin-left: auto; }
+  .more { text-align: center; font-size: 11px; color: var(--sub); padding-top: 4px; flex: none; }
 
   button { font: inherit; cursor: pointer; }
   .btn { border: none; border-radius: 10px; padding: 12px 18px; font-size: 16px; }
@@ -144,48 +151,43 @@
 </style>
 </head>
 <body>
-<header>
-  <svg viewBox="0 0 40 40" aria-hidden="true">
-    <g fill="#fff"><circle cx="20" cy="9" r="7"/><circle cx="30.5" cy="16.6" r="7"/><circle cx="26.5" cy="29" r="7"/><circle cx="13.5" cy="29" r="7"/><circle cx="9.5" cy="16.6" r="7"/></g>
-    <circle cx="20" cy="20" r="4.2" fill="#7a1f2b"/>
-  </svg>
-  <h1 class="mincho">北野天満宮 来訪カウンター</h1>
-  <span class="date" id="todayLabel"></span>
-</header>
+<div class="screen">
+  <header>
+    <svg viewBox="0 0 40 40" aria-hidden="true">
+      <g fill="#fff"><circle cx="20" cy="9" r="7"/><circle cx="30.5" cy="16.6" r="7"/><circle cx="26.5" cy="29" r="7"/><circle cx="13.5" cy="29" r="7"/><circle cx="9.5" cy="16.6" r="7"/></g>
+      <circle cx="20" cy="20" r="4.2" fill="#7a1f2b"/>
+    </svg>
+    <div class="htxt">
+      <div class="date" id="todayLabel"></div>
+      <div class="split" id="tSplit"></div>
+    </div>
+    <div class="htotal"><span class="num" id="tTotal">0</span><span class="u">名</span></div>
+  </header>
+
+  <div class="qty" id="qty">
+    <span class="ql">人数</span>
+    <button data-q="1" class="on">1</button><button data-q="2">2</button><button data-q="3">3</button><button data-q="4">4</button><button data-q="5">5</button>
+    <button id="qMinus" class="pm">−</button><span class="qv" id="qVal">1</span><button id="qPlus" class="pm">＋</button>
+  </div>
+
+  <div class="grid">
+    <div class="colhead jp">日本人</div><div class="colhead fg">外国人</div>
+    <button class="cbtn jp b1" data-f="0" data-b="1"><span class="t">1回目</span><span class="c">0</span></button>
+    <button class="cbtn fg b1" data-f="1" data-b="1"><span class="t">1回目</span><span class="c">0</span></button>
+    <button class="cbtn jp b2" data-f="0" data-b="2"><span class="t">2回目</span><span class="c">0</span></button>
+    <button class="cbtn fg b2" data-f="1" data-b="2"><span class="t">2回目</span><span class="c">0</span></button>
+    <button class="cbtn jp b3" data-f="0" data-b="3"><span class="t">3回目以上</span><span class="c">0</span></button>
+    <button class="cbtn fg b3" data-f="1" data-b="3"><span class="t">3回目以上</span><span class="c">0</span></button>
+  </div>
+
+  <div class="undo-row">
+    <span class="last" id="lastLabel">人数を選んでタップ</span>
+    <button class="btn-ghost" id="undoBtn">↶ 取り消し</button>
+  </div>
+  <div class="more">↓ 集計・ログ</div>
+</div>
 
 <main>
-  <!-- live counter -->
-  <section class="card">
-    <h2 class="mincho">ライブカウント（本日）</h2>
-    <div class="total">
-      <span class="lbl">本日</span><span class="num" id="tTotal">0</span><span class="lbl">名</span>
-      <span class="split" id="tSplit"></span>
-    </div>
-    <div class="qty" id="qty">
-      <span class="ql">人数</span>
-      <button data-q="1" class="on">1</button><button data-q="2">2</button><button data-q="3">3</button><button data-q="4">4</button><button data-q="5">5</button>
-      <span class="sep"></span>
-      <button id="qMinus">−</button><span class="qv" id="qVal">1</span><button id="qPlus">＋</button>
-      <span class="ql">名をまとめて加算</span>
-    </div>
-    <div class="grid">
-      <div></div>
-      <div class="colhead">1回目</div><div class="colhead">2回目</div><div class="colhead">3回目以上</div>
-      <div class="rowlbl jp">日本人</div>
-      <button class="cbtn jp b1" data-f="0" data-b="1"><span class="t">1回目</span><span class="c">0</span></button>
-      <button class="cbtn jp b2" data-f="0" data-b="2"><span class="t">2回目</span><span class="c">0</span></button>
-      <button class="cbtn jp b3" data-f="0" data-b="3"><span class="t">3回目以上</span><span class="c">0</span></button>
-      <div class="rowlbl fg">外国人</div>
-      <button class="cbtn fg b1" data-f="1" data-b="1"><span class="t">1回目</span><span class="c">0</span></button>
-      <button class="cbtn fg b2" data-f="1" data-b="2"><span class="t">2回目</span><span class="c">0</span></button>
-      <button class="cbtn fg b3" data-f="1" data-b="3"><span class="t">3回目以上</span><span class="c">0</span></button>
-    </div>
-    <div class="undo-row">
-      <span class="last" id="lastLabel">人数を選んでボタンをタップ（タップ後は1名に戻ります）</span>
-      <button class="btn-ghost" id="undoBtn">↶ 1つ取り消す</button>
-    </div>
-  </section>
-
   <!-- summary -->
   <section class="card">
     <h2 class="mincho">集計 <span class="r seg" id="sumSeg"><button data-v="today" class="on">本日</button><button data-v="month">今月</button><button data-v="all">累計</button></span></h2>
@@ -195,33 +197,10 @@
     </table>
   </section>
 
-  <!-- named -->
-  <section class="card">
-    <h2 class="mincho">お客様を名前で記録</h2>
-    <form class="entry" id="entryForm" autocomplete="off">
-      <label class="f">お名前
-        <input id="inName" placeholder="例：山田 花子 / John Smith" required>
-        <div class="suggest" id="suggest"></div>
-      </label>
-      <label class="f">電話 下4桁（任意）
-        <input id="inTel" inputmode="numeric" maxlength="4" placeholder="1234">
-      </label>
-      <label class="chk"><input type="checkbox" id="inForeign">外国人</label>
-      <button class="btn btn-primary" type="submit">記録</button>
-    </form>
-    <div class="note">登録したお客様は何回目かを自動で判定し、上のカウントにも自動で加算されます。名前＋電話下4桁で同一人物を判定します。</div>
-    <div class="result" id="result">
-      <div class="who mincho" id="rWho"></div>
-      <div class="nth mincho" id="rNth"></div>
-      <div class="meta" id="rMeta"></div>
-    </div>
-  </section>
-
   <!-- tabs -->
   <section class="card">
     <div class="tabs">
       <button class="tab on" data-tab="log">来訪ログ</button>
-      <button class="tab" data-tab="customers">お客様一覧</button>
       <button class="tab" data-tab="trend">推移</button>
       <button class="tab" data-tab="data">データ</button>
     </div>
@@ -229,24 +208,8 @@
     <div class="panel on" id="p-log">
       <div class="toolbar"><input type="date" id="logDate"><span id="logSummary" class="muted" style="font-size:13px"></span></div>
       <table>
-        <thead><tr><th>時刻</th><th>お客様</th><th>区分</th><th></th></tr></thead>
+        <thead><tr><th>時刻</th><th>区分</th><th>国籍</th><th class="n">人数</th><th></th></tr></thead>
         <tbody id="logBody"></tbody>
-      </table>
-    </div>
-
-    <div class="panel" id="p-customers">
-      <div class="toolbar">
-        <input class="grow" id="custSearch" placeholder="名前・電話で検索">
-        <select id="custSort">
-          <option value="count">来訪回数が多い順</option>
-          <option value="last">最終来訪が新しい順</option>
-          <option value="first">初回来訪が新しい順</option>
-          <option value="name">名前順</option>
-        </select>
-      </div>
-      <table>
-        <thead><tr><th>お名前</th><th>電話</th><th class="n">回数</th><th>初回</th><th>最終</th></tr></thead>
-        <tbody id="custBody"></tbody>
       </table>
     </div>
 
@@ -273,20 +236,6 @@
     </div>
   </section>
 </main>
-
-<dialog id="custDlg">
-  <div class="dlg">
-    <h3 id="dName" class="mincho"></h3>
-    <div id="dMeta" class="muted" style="font-size:13px"></div>
-    <ul id="dVisits"></ul>
-    <div class="row">
-      <button class="btn-ghost btn-danger" id="dDelete">削除</button>
-      <button class="btn-ghost" id="dEdit">情報を修正</button>
-      <button class="btn-ghost" id="dClose">閉じる</button>
-      <button class="btn btn-primary" id="dVisit">今日の来訪を記録</button>
-    </div>
-  </div>
-</dialog>
 
 <footer>北野天満宮 来訪カウンター ・ データはこの端末にのみ保存</footer>
 
@@ -371,67 +320,6 @@
     save(); render();
   }
 
-  // ---------- named record ----------
-  function recordNamed(name, tel, foreign) {
-    name = norm(name); tel = norm(tel).replace(/\D/g, '').slice(0, 4);
-    if (!name) return;
-    let c = findCustomer(name, tel);
-    if (!c) { c = { id: uid(), name, tel, foreign: !!foreign }; data.customers[c.id] = c; }
-    else if (foreign && !c.foreign) c.foreign = true;
-    const v = { id: uid(), ts: Date.now(), cid: c.id, f: c.foreign ? 1 : 0 };
-    data.visits.push(v); renumber(c.id); history.push(v.id); save();
-    const prev = visitsOf(c.id).slice(-2, -1)[0];
-    $('rWho').textContent = `${c.name} 様${c.tel ? `（${c.tel}）` : ''}${c.foreign ? ' ・外国人' : ''}`;
-    $('rNth').textContent = v.n === 1 ? '初めてのご来訪' : `${v.n}回目のご来訪`;
-    $('rNth').classList.toggle('first', v.n === 1);
-    $('rMeta').textContent = prev ? `前回：${fmtDate(prev.ts)}（${WD[new Date(prev.ts).getDay()]}）` : 'ようこそお参りくださいました';
-    const r = $('result'); r.classList.remove('show'); void r.offsetWidth; r.classList.add('show');
-    $('lastLabel').textContent = `${fmtTime(v.ts)} ${c.name} 様（${BL[v.b]}）を記録しました`;
-    render();
-  }
-  $('entryForm').addEventListener('submit', e => {
-    e.preventDefault();
-    recordNamed($('inName').value, $('inTel').value, $('inForeign').checked);
-    $('inName').value = ''; $('inTel').value = ''; $('inForeign').checked = false;
-    hideSuggest(); $('inName').focus();
-  });
-
-  // suggest
-  let sugIdx = -1, sugItems = [];
-  function custStats() {
-    const m = {};
-    for (const v of data.visits) if (v.cid) {
-      const s = m[v.cid] || (m[v.cid] = { count: 0, first: Infinity, last: 0 });
-      s.count++; s.first = Math.min(s.first, v.ts); s.last = Math.max(s.last, v.ts);
-    }
-    return m;
-  }
-  function showSuggest() {
-    const q = norm($('inName').value).replace(/ /g, '').toLowerCase();
-    if (!q) return hideSuggest();
-    const st = custStats();
-    sugItems = Object.values(data.customers)
-      .filter(c => norm(c.name).replace(/ /g, '').toLowerCase().includes(q) || (c.tel && c.tel.startsWith(q)))
-      .sort((a, b) => (st[b.id]?.last || 0) - (st[a.id]?.last || 0)).slice(0, 6);
-    if (!sugItems.length) return hideSuggest();
-    sugIdx = -1;
-    $('suggest').innerHTML = sugItems.map((c, i) => `<div data-i="${i}"><span>${esc(c.name)}${c.tel ? ` <small>${esc(c.tel)}</small>` : ''}${c.foreign ? ' <small>外</small>' : ''}</span><small>${st[c.id]?.count || 0}回</small></div>`).join('');
-    $('suggest').classList.add('show');
-  }
-  function hideSuggest() { $('suggest').classList.remove('show'); sugIdx = -1; }
-  function pickSuggest(i) { const c = sugItems[i]; if (!c) return; $('inName').value = c.name; $('inTel').value = c.tel || ''; $('inForeign').checked = !!c.foreign; hideSuggest(); }
-  $('inName').addEventListener('input', showSuggest);
-  $('inName').addEventListener('blur', () => setTimeout(hideSuggest, 150));
-  $('inName').addEventListener('keydown', e => {
-    const box = $('suggest'); if (!box.classList.contains('show')) return;
-    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-      e.preventDefault(); sugIdx = (sugIdx + (e.key === 'ArrowDown' ? 1 : -1) + sugItems.length) % sugItems.length;
-      [...box.children].forEach((el, i) => el.classList.toggle('active', i === sugIdx));
-    } else if (e.key === 'Enter' && sugIdx >= 0) { e.preventDefault(); pickSuggest(sugIdx); }
-    else if (e.key === 'Escape') hideSuggest();
-  });
-  $('suggest').addEventListener('mousedown', e => { const el = e.target.closest('[data-i]'); if (el) { e.preventDefault(); pickSuggest(+el.dataset.i); } });
-
   // ---------- tabs ----------
   document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x === t));
@@ -444,8 +332,6 @@
   });
   $('logDate').value = todayKey();
   $('logDate').addEventListener('change', renderLog);
-  $('custSearch').addEventListener('input', renderCustomers);
-  $('custSort').addEventListener('change', renderCustomers);
   $('trendRange').addEventListener('change', renderTrend);
   $('trendBy').addEventListener('change', renderTrend);
 
@@ -464,7 +350,7 @@
     document.querySelectorAll('.cbtn').forEach(btn => btn.querySelector('.c').textContent = t[btn.dataset.f][btn.dataset.b]);
     $('tTotal').textContent = sum3(t[0]) + sum3(t[1]);
     $('tSplit').textContent = `日本人 ${sum3(t[0])} ／ 外国人 ${sum3(t[1])}`;
-    renderSummary(); renderLog(); renderCustomers(); renderTrend();
+    renderSummary(); renderLog(); renderTrend();
   }
 
   function renderSummary() {
@@ -480,13 +366,12 @@
   function renderLog() {
     const k = $('logDate').value || todayKey();
     const list = data.visits.filter(v => dayKey(v.ts) === k).sort((a, b) => b.ts - a.ts);
-    if (!list.length) { $('logBody').innerHTML = `<tr><td colspan="4" class="empty">この日の記録はありません</td></tr>`; $('logSummary').textContent = ''; return; }
+    if (!list.length) { $('logBody').innerHTML = `<tr><td colspan="5" class="empty">この日の記録はありません</td></tr>`; $('logSummary').textContent = ''; return; }
     $('logBody').innerHTML = list.map(v => {
-      const c = v.cid && data.customers[v.cid];
-      const who = c ? `<a href="#" data-cid="${c.id}" style="color:inherit">${esc(c.name)}</a>${c.tel ? ` <span class="muted">${esc(c.tel)}</span>` : ''}` : '<span class="muted">（カウントのみ）</span>';
-      const lab = c && v.n ? `${v.n}回目` : BL[v.b];
-      return `<tr><td>${fmtTime(v.ts)}</td><td>${who}</td>
-        <td><span class="badge ${v.b === 1 ? 'b1' : ''}">${lab}</span> ${v.f ? '<span class="badge fg">外国人</span>' : ''} ${Q(v) > 1 ? `<b>×${Q(v)}名</b>` : ''}</td>
+      return `<tr><td>${fmtTime(v.ts)}</td>
+        <td><span class="badge ${v.b === 1 ? 'b1' : ''}">${BL[v.b]}</span></td>
+        <td>${v.f ? '<span class="badge fg">外国人</span>' : '日本人'}</td>
+        <td class="n">${Q(v)}名</td>
         <td class="n"><button class="btn-ghost btn-small btn-danger" data-del="${v.id}">削除</button></td></tr>`;
     }).join('');
     const t = tally(list);
@@ -494,27 +379,8 @@
   }
   $('logBody').addEventListener('click', e => {
     const del = e.target.closest('[data-del]');
-    if (del) { if (confirm('この記録を削除しますか？')) removeVisit(del.dataset.del); return; }
-    const a = e.target.closest('[data-cid]'); if (a) { e.preventDefault(); openCustomer(a.dataset.cid); }
+    if (del && confirm('この記録を削除しますか？')) removeVisit(del.dataset.del);
   });
-
-  function renderCustomers() {
-    const st = custStats();
-    const q = norm($('custSearch').value).replace(/ /g, '').toLowerCase();
-    const s = c => st[c.id] || { count: 0, first: 0, last: 0 };
-    const list = Object.values(data.customers).filter(c => !q || norm(c.name).replace(/ /g, '').toLowerCase().includes(q) || (c.tel || '').includes(q));
-    list.sort({
-      count: (a, b) => s(b).count - s(a).count || s(b).last - s(a).last,
-      last: (a, b) => s(b).last - s(a).last,
-      first: (a, b) => s(b).first - s(a).first,
-      name: (a, b) => a.name.localeCompare(b.name, 'ja'),
-    }[$('custSort').value]);
-    $('custBody').innerHTML = list.length ? list.map(c => `<tr class="clickable" data-cid="${c.id}">
-      <td>${esc(c.name)} ${c.foreign ? '<span class="badge fg">外</span>' : ''}</td><td>${esc(c.tel || '')}</td><td class="n">${s(c).count}</td>
-      <td>${s(c).first ? fmtDate(s(c).first) : ''}</td><td>${s(c).last ? fmtDate(s(c).last) : ''}</td></tr>`).join('')
-      : `<tr><td colspan="5" class="empty">${q ? '該当するお客様はいません' : 'まだ登録がありません'}</td></tr>`;
-  }
-  $('custBody').addEventListener('click', e => { const tr = e.target.closest('[data-cid]'); if (tr) openCustomer(tr.dataset.cid); });
 
   function renderTrend() {
     const days = +$('trendRange').value, by = $('trendBy').value;
@@ -537,52 +403,14 @@
     $('legend').innerHTML = series.map(s => `<span><i style="background:${s.c}"></i>${s.l}</span>`).join('');
   }
 
-  // ---------- customer dialog ----------
-  let curCid = null;
-  function openCustomer(cid) {
-    const c = data.customers[cid]; if (!c) return;
-    curCid = cid;
-    const vs = visitsOf(cid);
-    $('dName').textContent = `${c.name} 様`;
-    $('dMeta').textContent = [c.tel && '電話下4桁 ' + c.tel, c.foreign ? '外国人' : '日本人', `来訪 ${vs.length}回`].filter(Boolean).join(' ・ ');
-    $('dVisits').innerHTML = vs.slice().reverse().map(v => `<li><span>${v.n}回目</span><span>${fmtDate(v.ts)}（${WD[new Date(v.ts).getDay()]}） ${fmtTime(v.ts)}</span></li>`).join('');
-    $('custDlg').showModal();
-  }
-  $('dClose').addEventListener('click', () => $('custDlg').close());
-  $('dVisit').addEventListener('click', () => {
-    const c = data.customers[curCid]; $('custDlg').close();
-    if (c) { recordNamed(c.name, c.tel, c.foreign); window.scrollTo({ top: $('entryForm').offsetTop - 80, behavior: 'smooth' }); }
-  });
-  $('dEdit').addEventListener('click', () => {
-    const c = data.customers[curCid]; if (!c) return;
-    const name = prompt('お名前', c.name); if (name === null) return;
-    const tel = prompt('電話 下4桁（空欄可）', c.tel || ''); if (tel === null) return;
-    const foreign = confirm('外国人のお客様ですか？\n「OK」= 外国人 ／「キャンセル」= 日本人');
-    const nn = norm(name), nt = norm(tel).replace(/\D/g, '').slice(0, 4);
-    if (!nn) return;
-    const dup = findCustomer(nn, nt);
-    if (dup && dup.id !== c.id) {
-      if (!confirm(`「${dup.name}${dup.tel ? '（' + dup.tel + '）' : ''}」様がすでにいます。来訪記録を統合しますか？`)) return;
-      data.visits.forEach(v => { if (v.cid === c.id) v.cid = dup.id; });
-      delete data.customers[c.id]; dup.foreign = foreign; curCid = dup.id;
-    } else { c.name = nn; c.tel = nt; c.foreign = foreign; }
-    renumber(curCid); save(); render(); openCustomer(curCid);
-  });
-  $('dDelete').addEventListener('click', () => {
-    const c = data.customers[curCid]; if (!c) return;
-    if (!confirm(`${c.name} 様と来訪記録をすべて削除しますか？`)) return;
-    data.visits = data.visits.filter(v => v.cid !== curCid); delete data.customers[curCid];
-    save(); render(); $('custDlg').close();
-  });
-
   // ---------- CSV ----------
   const csvCell = s => /[",\n]/.test(String(s)) ? `"${String(s).replace(/"/g, '""')}"` : String(s);
   $('exportCsv').addEventListener('click', () => {
-    const rows = [['日時', '区分', '国籍', '人数', 'お名前', '電話下4桁', '来訪回数']];
+    const rows = [['日時', '区分', '国籍', '人数']];
     for (const v of [...data.visits].sort((a, b) => a.ts - b.ts)) {
       const c = v.cid && data.customers[v.cid];
       const d = new Date(v.ts);
-      rows.push([`${dayKey(v.ts)} ${fmtTime(v.ts)}:${pad(d.getSeconds())}`, BL[v.b], v.f ? '外国人' : '日本人', Q(v), c ? c.name : '', c ? c.tel || '' : '', c ? v.n : '']);
+      rows.push([`${dayKey(v.ts)} ${fmtTime(v.ts)}:${pad(d.getSeconds())}`, BL[v.b], v.f ? '外国人' : '日本人', Q(v)]);
     }
     const csv = '﻿' + rows.map(r => r.map(csvCell).join(',')).join('\r\n');
     const a = document.createElement('a');
